@@ -5,7 +5,9 @@ namespace NicAPI\Manager\Handler;
 
 
 use NicAPI\Manager\Objects\ResponseObject;
+use NicAPI\Manager\Query\Query;
 use NicAPI\Manager\Traits\Helper;
+use NicAPI\Manager\Transformers\Domain\Domain;
 use NicAPI\Manager\Transformers\ResponseTransformer;
 use NicAPI\NicAPI;
 
@@ -16,6 +18,9 @@ class Handler
 
     protected $nicAPI;
     protected $endpoint;
+
+    protected $targetObjectName;
+    protected $targetTransformerClass;
 
     public function __construct(NicAPI $nicAPI, $endpoint)
     {
@@ -53,6 +58,29 @@ class Handler
     public function setEndpoint($endpoint)
     {
         $this->endpoint = $endpoint;
+    }
+
+    public function query(): Query
+    {
+        return (new Query($this->nicAPI, $this->endpoint))->setTargetObjectName($this->targetObjectName)->setTargetTransformerClass($this->targetTransformerClass);
+    }
+
+    public function findByName($domainName)
+    {
+        return $this->query()->where('name', '=', $domainName);
+    }
+
+    public function getList()
+    {
+        $responseObject = $this->get($this->endpoint);
+
+        $responseDomainList = $responseObject->getData()->{$this->targetObjectName};
+        $list = [];
+
+        if (is_array($responseDomainList))
+            foreach ($responseDomainList as $item)
+                $list[] = (new $this->targetTransformerClass())->transformResponse($item);
+        return $list;
     }
 
     /*

@@ -4,8 +4,11 @@
 namespace NicAPI\Manager\Query;
 
 
+use NicAPI\Manager\Objects\ResponseObject;
 use NicAPI\Manager\Traits\Helper;
 use NicAPI\Manager\Traits\TransformTraits;
+use NicAPI\Manager\Transformers\Domain\Domain;
+use NicAPI\Manager\Transformers\Domain\Handle;
 use NicAPI\NicAPI;
 
 class Query
@@ -13,10 +16,13 @@ class Query
 
     use Helper, TransformTraits;
 
-    public $queriesWhere = ['filter']['fields'];
-    public $orderQuery = [];
-    public $limit = 1;
-    public $offset = 0;
+    public $queriesWhere;
+    public $orderQuery;
+    public $limit;
+    public $offset;
+
+    protected $targetObjectName;
+    protected $targetTransformerClass;
 
     protected $nicAPI;
     protected $endpoint;
@@ -25,9 +31,47 @@ class Query
     {
         $this->nicAPI = $nicAPI;
         $this->endpoint = $endpoint;
+        $this->queriesWhere = ['fields' => []];
+        $this->orderQuery = [];
+        $this->limit = null;
+        $this->offset = 0;
     }
 
-    public function setLimit($limit = 1)
+    /**
+     * @return mixed
+     */
+    public function getTargetObjectName()
+    {
+        return $this->targetObjectName;
+    }
+
+    /**
+     * @param mixed $targetObjectName
+     */
+    public function setTargetObjectName($targetObjectName)
+    {
+        $this->targetObjectName = $targetObjectName;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTargetTransformerClass()
+    {
+        return $this->targetTransformerClass;
+    }
+
+    /**
+     * @param mixed $targetTransformerClass
+     */
+    public function setTargetTransformerClass($targetTransformerClass)
+    {
+        $this->targetTransformerClass = $targetTransformerClass;
+        return $this;
+    }
+
+    public function setLimit($limit = null)
     {
         $this->limit = $limit;
         return $this;
@@ -41,7 +85,7 @@ class Query
 
     public function where($key, $operator, $value)
     {
-        $this->queriesWhere[] = [
+        $this->queriesWhere['fields'][] = [
             'key' => $key,
             'operator' => $operator,
             'value' => $value
@@ -136,13 +180,61 @@ class Query
         $this->where($this->snake($segment), '=', $parameters[$index]);
     }
 
-    public function get()
+    public function get($endpoint = '')
     {
-        return $this->nicAPI->request('GET', $this->endpoint, [
-            $this->queriesWhere,
+        $response = $this->getResponseObject($this->endpoint($endpoint), [
+            'filter' => $this->queriesWhere,
             'limit' => $this->limit,
-            'offset' => $this->offset,
+            'offset' => $this->offset
         ]);
+        $responseList = $response->getData()->{$this->targetObjectName};
+
+        $list = [];
+
+        if (is_array($responseList))
+            foreach ($responseList as $item)
+                $list[] = (new $this->targetTransformerClass())->transformResponse($item);
+        return $list;
+    }
+
+    public function first($endpoint = '')
+    {
+        return $this->get()[0];
+    }
+
+    function getResponseObject($endpoint, $params = null): ResponseObject
+    {
+        return $this->transformResponse($this->nicAPI->request('GET', $endpoint, $params));
+    }
+
+    function postResponseObject($endpoint, $params = null): ResponseObject
+    {
+        return $this->transformResponse($this->nicAPI->request('POST', $endpoint, $params));
+    }
+
+    function putResponseObject($endpoint, $params = null): ResponseObject
+    {
+        return $this->transformResponse($this->nicAPI->request('PUT', $endpoint, $params));
+    }
+
+    function deleteResponseObject($endpoint, $params = null): ResponseObject
+    {
+        return $this->transformResponse($this->nicAPI->request('DELETE', $endpoint, $params));
+    }
+
+    function endpoint($endpoint = '')
+    {
+        return $endpoint != '' ? $this->endpoint.'/'.$endpoint : $this->endpoint;
+    }
+
+    function transformResponse($response): ResponseObject
+    {
+        $metadata = $response->metadata;
+        $data = $response->data;
+        $taskInfo = $response->taskInfo;
+        $status = $response->status;
+        $messages = $response->messages;
+        return new ResponseObject($metadata->serverTransactionId, $status, $metadata->clientTransactionId, $data, $messages, $taskInfo);
     }
 
 }

@@ -44,10 +44,17 @@ class Domain extends ResponseTransformer
         'delete', 'suspended_at', 'suspended_at', 'suspended_until', 'authinfo', 'status', 'zone_id',
         'zone', 'nameservers', 'created_at', 'updated_at', 'user', 'nameservers_pivot'];
 
-    public function __construct(NicAPI $nicAPI, $endpoint)
+    public function __construct($sld = null, $tld = null, $ownerC = null, $adminC = null, $techC = null, $zoneC = null, array $nameservers = [])
     {
-        $this->nicAPI = $nicAPI;
-        $this->endpoint = $endpoint;
+        $this->sld = $sld;
+        $this->sld = $sld;
+        $this->name = $sld.'.'.$tld;
+        $this->tld = $tld;
+        $this->ownerC = $ownerC;
+        $this->adminC = $adminC;
+        $this->techC = $techC;
+        $this->zoneC = $zoneC;
+        $this->nameservers = $nameservers;
     }
 
     /**
@@ -59,27 +66,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param int $id
-     */
-    public function setId(int $id)
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @return string
      */
     public function getSld(): string
     {
         return $this->sld;
-    }
-
-    /**
-     * @param string $sld
-     */
-    public function setSld(string $sld)
-    {
-        $this->sld = $sld;
     }
 
     /**
@@ -91,27 +82,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $tld
-     */
-    public function setTld(string $tld)
-    {
-        $this->tld = $tld;
-    }
-
-    /**
      * @return string
      */
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name)
-    {
-        $this->name = $name;
     }
 
     /**
@@ -123,27 +98,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $ownerC
-     */
-    public function setOwnerC(string $ownerC)
-    {
-        $this->ownerC = $ownerC;
-    }
-
-    /**
      * @return string
      */
     public function getAdminC(): string
     {
         return $this->adminC;
-    }
-
-    /**
-     * @param string $adminC
-     */
-    public function setAdminC(string $adminC)
-    {
-        $this->adminC = $adminC;
     }
 
     /**
@@ -155,27 +114,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $techC
-     */
-    public function setTechC(string $techC)
-    {
-        $this->techC = $techC;
-    }
-
-    /**
      * @return string
      */
     public function getZoneC(): string
     {
         return $this->zoneC;
-    }
-
-    /**
-     * @param string $zoneC
-     */
-    public function setZoneC(string $zoneC)
-    {
-        $this->zoneC = $zoneC;
     }
 
     /**
@@ -187,27 +130,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $create
-     */
-    public function setCreate(string $create)
-    {
-        $this->create = $create;
-    }
-
-    /**
      * @return string
      */
     public function getExpire(): string
     {
         return $this->expire;
-    }
-
-    /**
-     * @param string $expire
-     */
-    public function setExpire(string $expire)
-    {
-        $this->expire = $expire;
     }
 
     /**
@@ -219,27 +146,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $delete
-     */
-    public function setDelete(string $delete)
-    {
-        $this->delete = $delete;
-    }
-
-    /**
      * @return string
      */
     public function getSuspendedAt(): string
     {
         return $this->suspended_at;
-    }
-
-    /**
-     * @param string $suspended_at
-     */
-    public function setSuspendedAt(string $suspended_at)
-    {
-        $this->suspended_at = $suspended_at;
     }
 
     /**
@@ -251,27 +162,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $suspended_until
-     */
-    public function setSuspendedUntil(string $suspended_until)
-    {
-        $this->suspended_until = $suspended_until;
-    }
-
-    /**
      * @return string
      */
     public function getAuthinfo(): string
     {
         return $this->authinfo;
-    }
-
-    /**
-     * @param string $authinfo
-     */
-    public function setAuthinfo(string $authinfo)
-    {
-        $this->authinfo = $authinfo;
     }
 
     /**
@@ -283,27 +178,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $status
-     */
-    public function setStatus(string $status)
-    {
-        $this->status = $status;
-    }
-
-    /**
      * @return string
      */
     public function getZoneId(): string
     {
         return $this->zone_id;
-    }
-
-    /**
-     * @param string $zone_id
-     */
-    public function setZoneId(string $zone_id)
-    {
-        $this->zone_id = $zone_id;
     }
 
     /**
@@ -315,27 +194,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $zone
-     */
-    public function setZone(string $zone)
-    {
-        $this->zone = $zone;
-    }
-
-    /**
      * @return string
      */
-    public function getNameservers(): string
+    public function getNameservers(): array
     {
         return $this->nameservers;
-    }
-
-    /**
-     * @param string $nameservers
-     */
-    public function setNameservers(string $nameservers)
-    {
-        $this->nameservers = $nameservers;
     }
 
     /**
@@ -347,27 +210,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $created_at
-     */
-    public function setCreatedAt(string $created_at)
-    {
-        $this->created_at = $created_at;
-    }
-
-    /**
      * @return string
      */
     public function getUpdatedAt(): string
     {
         return $this->updated_at;
-    }
-
-    /**
-     * @param string $updated_at
-     */
-    public function setUpdatedAt(string $updated_at)
-    {
-        $this->updated_at = $updated_at;
     }
 
     /**
@@ -379,32 +226,11 @@ class Domain extends ResponseTransformer
     }
 
     /**
-     * @param string $user
-     */
-    public function setUser(string $user)
-    {
-        $this->user = $user;
-    }
-
-    /**
      * @return array
      */
     public function getNameserversPivot(): array
     {
         return $this->nameservers_pivot;
-    }
-
-    /**
-     * @param array $nameservers_pivot
-     */
-    public function setNameserversPivot(array $nameservers_pivot)
-    {
-        $this->nameservers_pivot = $nameservers_pivot;
-    }
-
-    public function query(): Query
-    {
-        return new Query($this->nicAPI, $this->endpoint);
     }
 
 }

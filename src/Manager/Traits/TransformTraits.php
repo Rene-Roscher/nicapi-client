@@ -4,10 +4,12 @@
 namespace NicAPI\Manager\Traits;
 
 
+use Psr\Http\Message\ResponseInterface;
+
 trait TransformTraits
 {
 
-    public function processResponse($response)
+    public function processResponse(ResponseInterface $response)
     {
         $response = $response->getBody()->__toString();
         $result = json_decode($response);

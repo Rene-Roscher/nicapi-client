@@ -4,6 +4,7 @@
 namespace NicAPI\Manager\Transformers;
 
 
+use NicAPI\Manager\Query\Query;
 use NicAPI\Manager\Traits\Helper;
 use NicAPI\Manager\Traits\TransformTraits;
 use NicAPI\NicAPI;
@@ -13,15 +14,24 @@ abstract class ResponseTransformer
 
     use TransformTraits, Helper;
 
+    protected $dates = [
+        'created_at',
+        'deleted_at',
+        'updated_at',
+        'suspended_at'
+    ];
+
     function transformResponse($data)
     {
-        foreach (get_class_methods($this) as $method) {
-            if($this->startsWith($method, 'set')) {
-                $toSet = strtolower(str_split($method, 3)[1]);
-                $this->$toSet = $data[$toSet];
-            }
+        foreach ($this->fillable as $value) {
+            $this->{$value} = $data->$value ?: null;
         }
         return $this;
+    }
+
+    public function query(): Query
+    {
+        return new Query($this->nicAPI, $this->endpoint);
     }
 
 }
